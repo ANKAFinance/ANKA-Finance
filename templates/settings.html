@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Settings | Personal Finance Tracker{% endblock %}
+
+{% block content %}
+<header class="page-header">
+    <div>
+        <p class="eyebrow">Workspace</p>
+        <h1>Settings</h1>
+    </div>
+</header>
+
+<section class="two-column">
+    <article class="panel form-panel">
+        <h2>Profile</h2>
+        <form method="post" class="auth-form">
+            <label>Name<input name="name" value="{{ current_user.name }}" required></label>
+            <label>Email<input value="{{ current_user.email }}" disabled></label>
+            <label>Display currency
+                <select name="currency">
+                    {% for code, meta in supported_currencies.items() %}
+                        <option value="{{ code }}" {% if user_currency == code %}selected{% endif %}>
+                            {{ meta.name }} ({{ code }})
+                        </option>
+                    {% endfor %}
+                </select>
+            </label>
+            <button class="button primary" type="submit">Save settings</button>
+        </form>
+    </article>
+    <article class="panel">
+        <h2>Subscription</h2>
+        <p><strong>Plan:</strong> {{ effective_plan|capitalize }}</p>
+        <p><strong>Status:</strong> {{ current_user.subscription_status|capitalize }}</p>
+        {% if current_user.subscription_provider %}
+            <p><strong>Billing via:</strong> {{ current_user.subscription_provider|capitalize }}</p>
+        {% endif %}
+        {% if effective_plan == 'free' %}
+            <p class="note">Upgrade to Plus or Family for advanced reports and investments.</p>
+            <div class="hero-actions">
+                <a class="button primary" href="{{ url_for('billing_checkout', plan='plus') }}">Upgrade to Plus</a>
+                <a class="button" href="{{ url_for('pricing') }}">Compare plans</a>
+            </div>
+        {% elif stripe_enabled and current_user.subscription_provider == 'stripe' %}
+            <a class="button" href="{{ url_for('billing_portal') }}">Manage billing</a>
+        {% endif %}
+    </article>
+</section>
+{% endblock %}

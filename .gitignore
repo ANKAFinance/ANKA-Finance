@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+.pnpm-store/
+node_modules/
+mobile/node_modules/
+.vscode/
+*.db
+*.sqlite3

@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+{% block title %}Dashboard | Personal Finance Tracker{% endblock %}
+
+{% block content %}
+<header class="page-header">
+    <div>
+        <p class="eyebrow">Financial command center</p>
+        <h1>Portfolio Overview</h1>
+    </div>
+    <div class="header-actions">
+        <a class="button" href="{{ url_for('investments') }}">Review investments</a>
+        <a class="button primary" href="{{ url_for('transactions') }}">Record transaction</a>
+    </div>
+</header>
+
+<section class="metric-grid">
+    <article class="metric">
+        <span>Total income</span>
+        <strong>{{ total_income|currency }}</strong>
+    </article>
+    <article class="metric">
+        <span>Total expenses</span>
+        <strong>{{ total_expenses|currency }}</strong>
+    </article>
+    <article class="metric accent">
+        <span>Current balance</span>
+        <strong>{{ balance|currency }}</strong>
+    </article>
+    <article class="metric">
+        <span>Net worth</span>
+        <strong>{{ net_worth|currency }}</strong>
+    </article>
+    <article class="metric">
+        <span>This month net</span>
+        <strong>{{ monthly_net|currency }}</strong>
+    </article>
+</section>
+
+<section class="two-column">
+    <article class="panel">
+        <div class="panel-title">
+            <h2>Recent transactions</h2>
+            <a href="{{ url_for('transactions') }}">View all</a>
+        </div>
+        {% if recent_transactions %}
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Description</th>
+                            <th>Account</th>
+                            <th>Category</th>
+                            <th class="right">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for txn in recent_transactions %}
+                            <tr>
+                                <td>{{ txn.transaction_date|datefmt }}</td>
+                                <td>{{ txn.description }}</td>
+                                <td>{{ txn.account_name or "Unassigned" }}</td>
+                                <td>{{ txn.category }}</td>
+                                <td class="right {{ txn.type }}">{{ txn.amount|currency }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="empty">No transactions yet.</p>
+        {% endif %}
+    </article>
+
+    <article class="panel">
+        <div class="panel-title">
+            <h2>This month spending</h2>
+            <span>{{ monthly_expenses|currency }}</span>
+        </div>
+        {% if category_spending %}
+            <div class="bar-list">
+                {% for item in category_spending %}
+                    {% set width = (item.total / monthly_expenses * 100) if monthly_expenses else 0 %}
+                    <div class="bar-row">
+                        <div class="bar-label">
+                            <span>{{ item.category }}</span>
+                            <strong>{{ item.total|currency }}</strong>
+                        </div>
+                        <div class="track"><span style="width: {{ width }}%"></span></div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="empty">No expenses recorded this month.</p>
+        {% endif %}
+    </article>
+</section>
+
+<section class="two-column">
+    <article class="panel">
+        <div class="panel-title">
+            <h2>Accounts</h2>
+            <a href="{{ url_for('accounts') }}">Manage</a>
+        </div>
+        {% if accounts %}
+            <div class="account-list">
+                {% for account in accounts %}
+                    <div class="account-row">
+                        <div>
+                            <strong>{{ account.name }}</strong>
+                            <span>{{ account.type }}</span>
+                        </div>
+                        <b>{{ account.balance|currency }}</b>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="empty">Add bank, card, cash, or investment accounts to track net worth.</p>
+        {% endif %}
+    </article>
+
+    <article class="panel">
+        <div class="panel-title">
+            <h2>Budget health</h2>
+            <a href="{{ url_for('budgets') }}">Manage</a>
+        </div>
+        {% if budgets %}
+            <div class="bar-list">
+                {% for budget in budgets %}
+                    {% set usage = (budget.spent / budget.monthly_limit * 100) if budget.monthly_limit else 0 %}
+                    <div class="bar-row">
+                        <div class="bar-label">
+                            <span>{{ budget.category }}</span>
+                            <strong>{{ budget.spent|currency }} / {{ budget.monthly_limit|currency }}</strong>
+                        </div>
+                        <div class="track danger-aware"><span style="width: {{ [usage, 100]|min }}%"></span></div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="empty">Set budgets to see progress here.</p>
+        {% endif %}
+    </article>
+
+</section>
+
+<section class="two-column">
+    <article class="panel">
+        <div class="panel-title">
+            <h2>Savings goals</h2>
+            <a href="{{ url_for('goals') }}">Manage</a>
+        </div>
+        {% if goals %}
+            <div class="bar-list">
+                {% for goal in goals[:4] %}
+                    {% set progress = (goal.current_amount / goal.target_amount * 100) if goal.target_amount else 0 %}
+                    <div class="bar-row">
+                        <div class="bar-label">
+                            <span>{{ goal.name }}</span>
+                            <strong>{{ progress|percent }}</strong>
+                        </div>
+                        <div class="track success"><span style="width: {{ [progress, 100]|min }}%"></span></div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="empty">Create a goal to track savings progress.</p>
+        {% endif %}
+    </article>
+</section>
+{% endblock %}

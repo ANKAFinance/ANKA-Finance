@@ -1,0 +1,38 @@
+{
+  "expo": {
+    "name": "ANKA Finance",
+    "slug": "anka-finance",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#111827"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.advait.personalfinancetracker",
+      "infoPlist": {
+        "NSFaceIDUsageDescription": "Unlock your finance workspace securely."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#111827"
+      },
+      "package": "com.advait.personalfinancetracker"
+    },
+    "plugins": [
+      "react-native-iap"
+    ],
+    "extra": {
+      "apiUrl": "https://ankafinance.com/api/v1",
+      "eas": {
+        "projectId": "anka-finance-mobile"
+      }
+    }
+  }
+}

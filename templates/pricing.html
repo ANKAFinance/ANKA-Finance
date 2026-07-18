@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Pricing | Personal Finance Tracker{% endblock %}
+
+{% block content %}
+<header class="page-header">
+    <div>
+        <p class="eyebrow">Global plans</p>
+        <h1>Subscription plans for personal finance worldwide</h1>
+        <p class="note">Prices shown in USD. Stripe checkout supports cards in 135+ countries. Mobile apps use Apple and Google in-app purchases.</p>
+    </div>
+</header>
+
+<section class="pricing-grid">
+    <article class="price-card">
+        <h2>Free</h2>
+        <strong>$0</strong>
+        <p>For getting started with personal finance tracking.</p>
+        <ul>
+            <li>Accounts and transactions</li>
+            <li>Budgets and goals</li>
+            <li>CSV export</li>
+            <li>10 supported currencies</li>
+        </ul>
+        <a class="button" href="{{ url_for('register') }}">Start free</a>
+    </article>
+    <article class="price-card featured">
+        <h2>Plus</h2>
+        <strong>$4.99 / month</strong>
+        <p>For users who want reporting, investments, and deeper insights.</p>
+        <ul>
+            <li>Everything in Free</li>
+            <li>Advanced reports</li>
+            <li>Investment portfolio</li>
+            <li>Budget alerts</li>
+        </ul>
+        {% if current_user %}
+            <a class="button primary" href="{{ url_for('billing_checkout', plan='plus') }}">Upgrade to Plus</a>
+        {% else %}
+            <a class="button primary" href="{{ url_for('register') }}">Start free, upgrade later</a>
+        {% endif %}
+    </article>
+    <article class="price-card">
+        <h2>Family</h2>
+        <strong>$9.99 / month</strong>
+        <p>For households managing shared budgets and savings goals.</p>
+        <ul>
+            <li>Everything in Plus</li>
+            <li>Shared budgets</li>
+            <li>Priority support</li>
+        </ul>
+        {% if current_user %}
+            <a class="button" href="{{ url_for('billing_checkout', plan='family') }}">Upgrade to Family</a>
+        {% else %}
+            <a class="button" href="{{ url_for('register') }}">Start free, upgrade later</a>
+        {% endif %}
+    </article>
+</section>
+{% endblock %}

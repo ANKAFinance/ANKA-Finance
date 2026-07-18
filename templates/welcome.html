@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Personal Finance Tracker{% endblock %}
+
+{% block content %}
+<section class="hero-band">
+    <div>
+        <p class="eyebrow">Global personal finance platform</p>
+        <h1>Professional finance tracking for households worldwide.</h1>
+        <p>Manage cash flow, accounts, investments, budgets, savings goals, and reports from one secure workspace. Supports 10 currencies with Stripe billing and mobile app subscriptions.</p>
+        <div class="hero-actions">
+            <a class="button primary" href="{{ url_for('register') }}">Start free</a>
+            <a class="button" href="{{ url_for('pricing') }}">See pricing</a>
+        </div>
+    </div>
+    <div class="hero-preview">
+        <div class="market-status compact-status">
+            <span class="status-dot"></span>
+            Finance workspace active
+        </div>
+        <span>Projected monthly surplus</span>
+        <strong>$1,250.00 USD</strong>
+        <div class="track success"><span style="width: 72%"></span></div>
+        <div class="preview-grid">
+            <small>Budget control</small>
+            <small>Goal tracking</small>
+            <small>Cash flow reports</small>
+            <small>CSV exports</small>
+        </div>
+    </div>
+</section>
+
+<section class="feature-grid">
+    <article class="panel"><h2>Private by design</h2><p>Each user gets an isolated finance workspace with accounts, transactions, budgets, investments, goals, reports, and exports.</p></article>
+    <article class="panel"><h2>Complete financial overview</h2><p>Track net worth, cash flow, spending concentration, savings progress, and portfolio value from a single dashboard.</p></article>
+    <article class="panel"><h2>Ready for App Store and Play Store</h2><p>REST API, Stripe global checkout, Apple and Google in-app purchase verification, and subscription enforcement built in.</p></article>
+</section>
+{% endblock %}

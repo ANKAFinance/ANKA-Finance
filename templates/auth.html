@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}{{ "Create account" if mode == "register" else "Sign in" }} | Personal Finance Tracker{% endblock %}
+
+{% block content %}
+<section class="auth-layout">
+    <div class="auth-copy">
+        <p class="eyebrow">Finance SaaS</p>
+        <h1>{{ "Start tracking money with clarity" if mode == "register" else "Welcome back" }}</h1>
+        <p>Use one secure workspace for accounts, income, expenses, budgets, savings goals, and exports.</p>
+    </div>
+    <article class="panel auth-panel">
+        <h2>{{ "Create your account" if mode == "register" else "Sign in" }}</h2>
+        <form method="post" class="auth-form">
+            {% if mode == "register" %}
+                <label>Name<input name="name" required autocomplete="name"></label>
+                <label>Preferred currency
+                    <select name="currency">
+                        {% for code, meta in supported_currencies.items() %}
+                            <option value="{{ code }}" {% if code == 'USD' %}selected{% endif %}>{{ meta.name }} ({{ code }})</option>
+                        {% endfor %}
+                    </select>
+                </label>
+            {% endif %}
+            <label>Email<input name="email" type="email" required autocomplete="email"></label>
+            <label>Password<input name="password" type="password" required minlength="8" autocomplete="{{ 'new-password' if mode == 'register' else 'current-password' }}"></label>
+            <button class="button primary" type="submit">{{ "Create account" if mode == "register" else "Sign in" }}</button>
+        </form>
+        {% if mode == "register" %}
+            <p class="switch-link">Already have an account? <a href="{{ url_for('login') }}">Sign in</a></p>
+        {% else %}
+            <p class="switch-link">New here? <a href="{{ url_for('register') }}">Create an account</a></p>
+        {% endif %}
+    </article>
+</section>
+{% endblock %}

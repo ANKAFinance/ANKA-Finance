@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Accounts | Personal Finance Tracker{% endblock %}
+
+{% block content %}
+<header class="page-header">
+    <div>
+        <p class="eyebrow">Net worth</p>
+        <h1>Accounts</h1>
+    </div>
+    <article class="mini-stat">
+        <span>Total net worth</span>
+        <strong>{{ net_worth|currency }}</strong>
+    </article>
+</header>
+
+<section class="panel form-panel">
+    <h2>Add account</h2>
+    <form method="post" class="form-grid compact">
+        <label>Account name<input name="name" required placeholder="Main Checking"></label>
+        <label>Type
+            <select name="type">
+                {% for type in account_types %}
+                    <option>{{ type }}</option>
+                {% endfor %}
+            </select>
+        </label>
+        <label>Balance<input name="balance" type="number" step="0.01" required></label>
+        <label class="check-row"><input name="include_in_net_worth" type="checkbox" checked> Include in net worth</label>
+        <button class="button primary" type="submit">Add account</button>
+    </form>
+</section>
+
+<section class="panel">
+    <div class="panel-title">
+        <h2>Account list</h2>
+        <span>{{ accounts|length }} accounts</span>
+    </div>
+    {% if accounts %}
+        <div class="account-grid">
+            {% for account in accounts %}
+                <article class="account-card">
+                    <div class="card-header">
+                        <div>
+                            <h3>{{ account.name }}</h3>
+                            <p>{{ account.type }}</p>
+                        </div>
+                        <form method="post" action="{{ url_for('delete_account', account_id=account.id) }}">
+                            <button class="link-button" type="submit">Delete</button>
+                        </form>
+                    </div>
+                    <strong>{{ account.balance|currency }}</strong>
+                    <form method="post" action="{{ url_for('update_account', account_id=account.id) }}" class="inline-form update-form">
+                        <input name="balance" type="number" step="0.01" value="{{ account.balance }}" required>
+                        <label class="check-row compact-check">
+                            <input name="include_in_net_worth" type="checkbox" {% if account.include_in_net_worth %}checked{% endif %}>
+                            Net worth
+                        </label>
+                        <button class="button" type="submit">Update</button>
+                    </form>
+                </article>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="empty">No accounts yet. Add checking, savings, cards, investments, loans, and cash above.</p>
+    {% endif %}
+</section>
+{% endblock %}

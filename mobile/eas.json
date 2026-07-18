@@ -1,0 +1,44 @@
+{
+  "cli": {
+    "version": ">= 12.0.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
+    "preview": {
+      "distribution": "internal"
+    },
+    "production": {
+      "autoIncrement": true,
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://ankafinance.com/api/v1",
+        "SUPPORT_EMAIL": "support@ankafinance.com",
+        "PRIVACY_URL": "https://ankafinance.com/privacy",
+        "TERMS_URL": "https://ankafinance.com/terms"
+      },
+      "ios": {
+        "image": "latest"
+      },
+      "android": {
+        "image": "latest"
+      }
+    }
+  },
+  "submit": {
+    "production": {
+      "ios": {
+        "appleId": "your-apple-id@example.com",
+        "ascAppId": "YOUR_APPLE_STORE_APP_ID",
+        "appleTeamId": "YOUR_APPLE_TEAM_ID"
+      },
+      "android": {
+        "track": "production",
+        "releaseStatus": "completed",
+        "changesNotSentForReview": false
+      }
+    }
+  }
+}

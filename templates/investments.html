@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+{% block title %}Investments | Personal Finance Tracker{% endblock %}
+
+{% block content %}
+<header class="page-header">
+    <div>
+        <p class="eyebrow">Portfolio intelligence</p>
+        <h1>Investments</h1>
+    </div>
+    <div class="market-status">
+        <span class="status-dot"></span>
+        Manual market tracking
+    </div>
+</header>
+
+<section class="metric-grid invest-metrics">
+    <article class="metric accent">
+        <span>Portfolio value</span>
+        <strong>{{ total_value|currency }}</strong>
+    </article>
+    <article class="metric">
+        <span>Total cost</span>
+        <strong>{{ total_cost|currency }}</strong>
+    </article>
+    <article class="metric">
+        <span>Unrealized gain</span>
+        <strong class="{{ 'income' if total_gain >= 0 else 'expense' }}">{{ total_gain|currency }}</strong>
+    </article>
+    <article class="metric">
+        <span>Return</span>
+        <strong class="{{ 'income' if total_gain_percent >= 0 else 'expense' }}">{{ total_gain_percent|percent }}</strong>
+    </article>
+</section>
+
+<section class="two-column">
+    <article class="panel form-panel">
+        <div class="panel-title">
+            <h2>Add holding</h2>
+            <span>Manual entry</span>
+        </div>
+        <form method="post" class="form-grid">
+            <input type="hidden" name="form_type" value="holding">
+            <label>Symbol<input name="symbol" required placeholder="RELIANCE"></label>
+            <label>Name<input name="name" required placeholder="Reliance Industries"></label>
+            <label>Asset type
+                <select name="asset_type">
+                    <option>Stock</option>
+                    <option>ETF</option>
+                    <option>Mutual Fund</option>
+                    <option>Crypto</option>
+                    <option>Bond</option>
+                </select>
+            </label>
+            <label>Quantity<input name="quantity" type="number" min="0" step="0.0001" required></label>
+            <label>Average price<input name="average_price" type="number" min="0" step="0.01" required></label>
+            <label>Current price<input name="current_price" type="number" min="0" step="0.01" required></label>
+            <label class="wide">Notes<input name="notes" placeholder="Long-term, watch earnings, SIP, etc."></label>
+            <button class="button primary" type="submit">Add holding</button>
+        </form>
+    </article>
+
+    <article class="panel">
+        <div class="panel-title">
+            <h2>Allocation</h2>
+            <span>{{ holdings|length }} holdings</span>
+        </div>
+        {% if allocation %}
+            <div class="bar-list">
+                {% for item in allocation %}
+                    <div class="bar-row">
+                        <div class="bar-label">
+                            <span>{{ item.symbol }}</span>
+                            <strong>{{ item.weight|percent }}</strong>
+                        </div>
+                        <div class="track"><span style="width: {{ item.weight }}%"></span></div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="empty">Add holdings to see portfolio allocation.</p>
+        {% endif %}
+    </article>
+</section>
+
+<section class="panel">
+    <div class="panel-title">
+        <h2>Holdings</h2>
+        <span>Cost, market value, and unrealized gain</span>
+    </div>
+    {% if holdings %}
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Asset</th>
+                        <th>Type</th>
+                        <th class="right">Qty</th>
+                        <th class="right">Avg</th>
+                        <th class="right">Current</th>
+                        <th class="right">Value</th>
+                        <th class="right">Gain</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in holdings %}
+                        {% set value = item.quantity * item.current_price %}
+                        {% set cost = item.quantity * item.average_price %}
+                        {% set gain = value - cost %}
+                        <tr>
+                            <td><strong>{{ item.symbol }}</strong><small>{{ item.name }}</small></td>
+                            <td>{{ item.asset_type }}</td>
+                            <td class="right">{{ item.quantity }}</td>
+                            <td class="right">{{ item.average_price|currency }}</td>
+                            <td class="right">{{ item.current_price|currency }}</td>
+                            <td class="right">{{ value|currency }}</td>
+                            <td class="right {{ 'income' if gain >= 0 else 'expense' }}">{{ gain|currency }}</td>
+                            <td class="right">
+                                <form method="post" action="{{ url_for('delete_investment', investment_id=item.id) }}">
+                                    <button class="link-button" type="submit">Remove</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="empty">No holdings yet. Add your first asset above.</p>
+    {% endif %}
+</section>
+
+<section class="two-column">
+    <article class="panel form-panel">
+        <div class="panel-title">
+            <h2>Watchlist</h2>
+            <span>Track ideas before investing</span>
+        </div>
+        <form method="post" class="form-grid compact">
+            <input type="hidden" name="form_type" value="watchlist">
+            <label>Symbol<input name="symbol" required placeholder="INFY"></label>
+            <label>Name<input name="name" required placeholder="Infosys"></label>
+            <label>Target price<input name="target_price" type="number" min="0" step="0.01"></label>
+            <label class="wide">Notes<input name="notes" placeholder="Reason to watch"></label>
+            <button class="button primary" type="submit">Add to watchlist</button>
+        </form>
+    </article>
+
+    <article class="panel">
+        <div class="panel-title">
+            <h2>Research queue</h2>
+            <span>{{ watch_items|length }} items</span>
+        </div>
+        {% if watch_items %}
+            <div class="account-list">
+                {% for item in watch_items %}
+                    <div class="account-row">
+                        <div>
+                            <strong>{{ item.symbol }}</strong>
+                            <span>{{ item.name }}{% if item.target_price %} · Target {{ item.target_price|currency }}{% endif %}</span>
+                        </div>
+                        <form method="post" action="{{ url_for('delete_watchlist_item', item_id=item.id) }}">
+                            <button class="link-button" type="submit">Remove</button>
+                        </form>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="empty">Add assets you want to research or monitor.</p>
+        {% endif %}
+    </article>
+</section>
+{% endblock %}

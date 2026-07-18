@@ -1,0 +1,15 @@
+[build]
+  builder = "NIXPACKS"
+
+[deploy]
+  startCommand = "gunicorn -w 2 -b 0.0.0.0:$PORT app:app"
+
+[service]
+  buildCommand = "pip install -r requirements.txt"
+  runCommand = "gunicorn -w 2 -b 0.0.0.0:$PORT app:app"
+
+[healthcheck]
+  path = "/api/v1/health"
+  interval = 30
+  timeout = 10
+  retries = 3

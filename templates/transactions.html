@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block title %}Transactions | Personal Finance Tracker{% endblock %}
+
+{% block content %}
+<header class="page-header">
+    <div>
+        <p class="eyebrow">Ledger</p>
+        <h1>Transactions</h1>
+    </div>
+</header>
+
+<section class="panel form-panel">
+    <h2>Add transaction</h2>
+    <form method="post" class="form-grid">
+        <label>Description<input name="description" required placeholder="Paycheck, rent, groceries"></label>
+        <label>Amount<input name="amount" type="number" min="0.01" step="0.01" required></label>
+        <label>Type
+            <select name="type">
+                <option value="expense">Expense</option>
+                <option value="income">Income</option>
+            </select>
+        </label>
+        <label>Category
+            <select name="category">
+                <optgroup label="Income">
+                    {% for category in income_categories %}
+                        <option>{{ category }}</option>
+                    {% endfor %}
+                </optgroup>
+                <optgroup label="Expenses">
+                    {% for category in expense_categories %}
+                        <option>{{ category }}</option>
+                    {% endfor %}
+                </optgroup>
+            </select>
+        </label>
+        <label>Account
+            <select name="account_id">
+                <option value="">Unassigned</option>
+                {% for account in accounts %}
+                    <option value="{{ account.id }}">{{ account.name }}</option>
+                {% endfor %}
+            </select>
+        </label>
+        <label>Date<input name="transaction_date" type="date" value="{{ today }}" required></label>
+        <label class="wide">Notes<input name="notes" placeholder="Optional note"></label>
+        <button class="button primary" type="submit">Save transaction</button>
+    </form>
+</section>
+
+<section class="panel">
+    <div class="panel-title">
+        <h2>History</h2>
+        <a class="button" href="{{ url_for('export_transactions') }}">Export CSV</a>
+        <form class="filters" method="get">
+            <select name="type">
+                <option value="all" {% if selected_type == 'all' %}selected{% endif %}>All types</option>
+                <option value="income" {% if selected_type == 'income' %}selected{% endif %}>Income</option>
+                <option value="expense" {% if selected_type == 'expense' %}selected{% endif %}>Expense</option>
+            </select>
+            <select name="category">
+                <option value="all">All categories</option>
+                {% for category in income_categories + expense_categories %}
+                    <option value="{{ category }}" {% if selected_category == category %}selected{% endif %}>{{ category }}</option>
+                {% endfor %}
+            </select>
+            <input name="search" value="{{ search }}" placeholder="Search">
+            <button class="button" type="submit">Filter</button>
+        </form>
+    </div>
+    {% if transactions %}
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Description</th>
+                        <th>Type</th>
+                        <th>Account</th>
+                        <th>Category</th>
+                        <th class="right">Amount</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for txn in transactions %}
+                        <tr>
+                            <td>{{ txn.transaction_date|datefmt }}</td>
+                            <td>
+                                <strong>{{ txn.description }}</strong>
+                                {% if txn.notes %}<small>{{ txn.notes }}</small>{% endif %}
+                            </td>
+                            <td><span class="pill {{ txn.type }}">{{ txn.type }}</span></td>
+                            <td>{{ txn.account_name or "Unassigned" }}</td>
+                            <td>{{ txn.category }}</td>
+                            <td class="right {{ txn.type }}">{{ txn.amount|currency }}</td>
+                            <td class="right">
+                                <form method="post" action="{{ url_for('delete_transaction', transaction_id=txn.id) }}">
+                                    <button class="link-button" type="submit">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="empty">No transactions match the current filters.</p>
+    {% endif %}
+</section>
+{% endblock %}

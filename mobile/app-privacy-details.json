@@ -1,0 +1,57 @@
+{
+  "APP_STORE_PRIVACY_DETAILS": {
+    "DATA_COLLECTED": {
+      "CONTACT_INFO": {
+        "NAME": {
+          "PURPOSE": ["APP_FUNCTIONALITY"],
+          "IS_REQUIRED": true,
+          "IS_LINKED_TO_USER": true
+        },
+        "EMAIL": {
+          "PURPOSE": ["APP_FUNCTIONALITY"],
+          "IS_REQUIRED": true,
+          "IS_LINKED_TO_USER": true
+        }
+      },
+      "USER_ID": {
+        "PURPOSE": ["APP_FUNCTIONALITY"],
+        "IS_REQUIRED": true,
+        "IS_LINKED_TO_USER": true
+      },
+      "FINANCIAL_INFO": {
+        "PURPOSE": ["APP_FUNCTIONALITY"],
+        "IS_REQUIRED": false,
+        "IS_LINKED_TO_USER": true
+      }
+    },
+    "DATA_NOT_COLLECTED": [
+      "PRECISE_LOCATION",
+      "COARSE_LOCATION",
+      "PHYSICAL_ADDRESS",
+      "PHONE_NUMBER",
+      "HEALTH",
+      "FITNESS",
+      "PAYMENT_INFO",
+      "SENSITIVE_INFO",
+      "CONTACTS",
+      "BROWSING_HISTORY",
+      "SEARCH_HISTORY",
+      "DIAGNOSTICS",
+      "DEVICE_ID",
+      "PURCHASE_HISTORY",
+      "CRASH_DATA",
+      "PERFORMANCE_DATA",
+      "OTHER_USAGE_DATA",
+      "OTHER_DIAGNOSTIC_DATA",
+      "THIRD_PARTY_ADVERTISING",
+      "PRODUCT_PERSONALIZATION",
+      "OTHER_DATA_TYPES"
+    ],
+    "DATA_UNCOLLECTED_EXPLANATION": "ANKA Finance does not collect location data, health information, payment card details, contacts, browsing history, or search history. Financial data entered by the user stays in their private workspace and is not shared or sold.",
+    "ACCOUNT_DELETION": "Users can delete their account and associated data from within the app Settings screen.",
+    "PRIVACY_POLICY_URL": "https://ankafinance.com/privacy",
+    "DATA_USAGE": {
+      "THIRD_PARTY_SHARING": "No financial data is shared with third parties. Subscription billing information is processed by Apple and Google, each governed by their own privacy policies."
+    }
+  }
+}

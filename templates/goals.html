@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Goals | Personal Finance Tracker{% endblock %}
+
+{% block content %}
+<header class="page-header">
+    <div>
+        <p class="eyebrow">Savings</p>
+        <h1>Goals</h1>
+    </div>
+</header>
+
+<section class="panel form-panel">
+    <h2>Create savings goal</h2>
+    <form method="post" class="form-grid">
+        <label>Goal name<input name="name" required placeholder="Emergency fund"></label>
+        <label>Target amount<input name="target_amount" type="number" min="0.01" step="0.01" required></label>
+        <label>Current amount<input name="current_amount" type="number" min="0" step="0.01" value="0"></label>
+        <label>Deadline<input name="deadline" type="date"></label>
+        <label class="wide">Notes<input name="notes" placeholder="Why this goal matters"></label>
+        <button class="button primary" type="submit">Add goal</button>
+    </form>
+</section>
+
+<section class="goal-grid">
+    {% if goals %}
+        {% for goal in goals %}
+            {% set progress = (goal.current_amount / goal.target_amount * 100) if goal.target_amount else 0 %}
+            {% set remaining = goal.target_amount - goal.current_amount %}
+            <article class="panel goal-card">
+                <div class="card-header">
+                    <div>
+                        <h2>{{ goal.name }}</h2>
+                        <p>{{ goal.deadline|datefmt }}</p>
+                    </div>
+                    <form method="post" action="{{ url_for('delete_goal', goal_id=goal.id) }}">
+                        <button class="link-button" type="submit">Delete</button>
+                    </form>
+                </div>
+                <div class="track success"><span style="width: {{ [progress, 100]|min }}%"></span></div>
+                <div class="goal-stats">
+                    <span>{{ goal.current_amount|currency }} saved</span>
+                    <span>{{ remaining|currency }} left</span>
+                    <strong>{{ progress|percent }}</strong>
+                </div>
+                {% if goal.notes %}
+                    <p class="note">{{ goal.notes }}</p>
+                {% endif %}
+                <form class="inline-form update-form" method="post" action="{{ url_for('update_goal', goal_id=goal.id) }}">
+                    <input name="current_amount" type="number" min="0" step="0.01" value="{{ goal.current_amount }}" required>
+                    <button class="button" type="submit">Update</button>
+                </form>
+            </article>
+        {% endfor %}
+    {% else %}
+        <article class="panel">
+            <p class="empty">No goals yet. Create one to begin tracking progress.</p>
+        </article>
+    {% endif %}
+</section>
+{% endblock %}
