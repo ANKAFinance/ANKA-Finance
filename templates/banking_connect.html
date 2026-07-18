@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+{% block title %}Link Bank Account{% endblock %}
+{% block content %}
+<div class="banking-page">
+    <div class="page-header">
+        <a href="{{ url_for('banking_home') }}" class="back-link">← Back to Banking</a>
+        <h1>Link Your Bank Account</h1>
+        <p class="page-subtitle">Securely connect your bank to auto-sync transactions & balances via Account Aggregator (AA)</p>
+    </div>
+
+    <div class="connect-layout">
+        <!-- Bank Selection -->
+        <div class="connect-section">
+            <h2>Select Your Bank</h2>
+            <div class="bank-search">
+                <input type="text" id="bankSearch" placeholder="Search your bank..." class="search-input" oninput="filterBanks()">
+            </div>
+            <div class="bank-grid" id="bankGrid">
+                {% for bank in supported_banks %}
+                <div class="bank-option" data-bank="{{ bank }}" onclick="selectBank('{{ bank }}')">
+                    <span class="bank-option-logo">{{ bank[:2] }}</span>
+                    <span class="bank-option-name">{{ bank }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Account Details Form -->
+        <div class="connect-section" id="accountForm" style="display:none">
+            <h2>Account Details</h2>
+            <form method="post" action="{{ url_for('banking_connect') }}" id="connectForm">
+                <input type="hidden" name="bank_name" id="selectedBank">
+                
+                <div class="form-group">
+                    <label>Account Number</label>
+                    <input type="text" name="account_number" class="form-input" placeholder="Enter your account number" required pattern="[0-9]{9,18}">
+                </div>
+
+                <div class="form-group">
+                    <label>IFSC Code</label>
+                    <input type="text" name="ifsc" class="form-input" placeholder="e.g., ICIC0001234" required pattern="[A-Za-z]{4}0[A-Za-z0-9]{6}">
+                    <small>IFSC lookup available: <a href="#" onclick="lookupIFSC()">Check IFSC</a></small>
+                </div>
+
+                <div class="form-group">
+                    <label>Account Type</label>
+                    <select name="account_type" class="form-input">
+                        <option value="savings">Savings Account</option>
+                        <option value="current">Current Account</option>
+                        <option value="salary">Salary Account</option>
+                    </select>
+                </div>
+
+                <div class="consent-info">
+                    <span class="consent-icon">🔒</span>
+                    <div>
+                        <strong>Account Aggregator Consent</strong>
+                        <p>We'll request 1-year consent to fetch your transactions and balance. Data is encrypted end-to-end.</p>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-primary btn-full">Link Account & Auto-Sync</button>
+            </form>
+        </div>
+
+        <!-- Status / Loading -->
+        <div class="connect-section" id="connectStatus" style="display:none">
+            <div class="status-card">
+                <div class="spinner"></div>
+                <h3>Connecting to Bank...</h3>
+                <p id="statusMessage">Initiating Account Aggregator consent</p>
+                <div class="status-steps">
+                    <div class="step active" id="step1">🔐 Creating secure consent</div>
+                    <div class="step" id="step2">🏦 Fetching account details</div>
+                    <div class="step" id="step3">📊 Importing transactions</div>
+                    <div class="step" id="step4">📱 Setting up UPI ID</div>
+                    <div class="step" id="step5">✅ Complete!</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.page-header { margin-bottom: 24px; }
+.back-link { color: #6c5ce7; text-decoration: none; font-size: 14px; display: inline-block; margin-bottom: 8px; }
+.page-header h1 { font-size: 24px; margin: 0 0 8px; }
+.page-subtitle { color: #888; font-size: 14px; }
+.connect-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.connect-section { background: white; border-radius: 14px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+.connect-section h2 { font-size: 18px; margin: 0 0 16px; }
+.bank-search { margin-bottom: 16px; }
+.search-input { width: 100%; padding: 10px 14px; border: 2px solid #eee; border-radius: 10px; font-size: 14px; }
+.search-input:focus { outline: none; border-color: #6c5ce7; }
+.bank-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; max-height: 400px; overflow-y: auto; }
+.bank-option { display: flex; align-items: center; gap: 10px; padding: 12px; border-radius: 10px; border: 2px solid #eee; cursor: pointer; transition: all 0.2s; }
+.bank-option:hover { border-color: #6c5ce7; background: #f8f8ff; }
+.bank-option.selected { border-color: #6c5ce7; background: #f0f0ff; }
+.bank-option-logo { background: #6c5ce7; color: white; width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; }
+.bank-option-name { font-weight: 500; font-size: 13px; }
+.form-group { margin-bottom: 16px; }
+.form-group label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 14px; }
+.form-input { width: 100%; padding: 10px 14px; border: 2px solid #eee; border-radius: 10px; font-size: 14px; box-sizing: border-box; }
+.form-input:focus { outline: none; border-color: #6c5ce7; }
+.form-group small { color: #888; font-size: 12px; display: block; margin-top: 4px; }
+.form-group small a { color: #6c5ce7; }
+.consent-info { display: flex; gap: 12px; padding: 14px; background: #fff8f0; border-radius: 10px; margin: 16px 0; }
+.consent-icon { font-size: 24px; }
+.consent-info strong { display: block; font-size: 14px; }
+.consent-info p { font-size: 12px; color: #666; margin: 4px 0 0; }
+.btn-full { width: 100%; text-align: center; padding: 14px; font-size: 16px; border: none; cursor: pointer; }
+.status-card { text-align: center; padding: 20px; }
+.spinner { width: 48px; height: 48px; border: 4px solid #eee; border-top-color: #6c5ce7; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.status-steps { text-align: left; max-width: 300px; margin: 20px auto; }
+.step { padding: 8px 12px; margin: 4px 0; border-radius: 8px; color: #888; font-size: 14px; }
+.step.active { color: #6c5ce7; font-weight: 600; background: #f0f0ff; }
+
+@media (max-width: 768px) { .connect-layout { grid-template-columns: 1fr; } }
+</style>
+
+<script>
+let selectedBank = '';
+function selectBank(bank) {
+    selectedBank = bank;
+    document.querySelectorAll('.bank-option').forEach(el => el.classList.remove('selected'));
+    document.querySelector(`[data-bank="${bank}"]`).classList.add('selected');
+    document.getElementById('selectedBank').value = bank;
+    document.getElementById('accountForm').style.display = 'block';
+    document.getElementById('accountForm').scrollIntoView({ behavior: 'smooth' });
+}
+
+function filterBanks() {
+    const q = document.getElementById('bankSearch').value.toLowerCase();
+    document.querySelectorAll('.bank-option').forEach(el => {
+        el.style.display = el.dataset.bank.toLowerCase().includes(q) ? 'flex' : 'none';
+    });
+}
+
+function lookupIFSC() {
+    const ifsc = document.querySelector('[name="ifsc"]').value.trim().toUpperCase();
+    if (ifsc.length < 11) { alert('Please enter a valid 11-character IFSC code'); return; }
+    fetch(`/api/v1/banking/ifsc/${ifsc}`)
+        .then(r => r.json())
+        .then(data => {
+            if (data.ifsc) {
+                alert(`Bank: ${data.ifsc.bank}\nBranch: ${data.ifsc.branch}\nCity: ${data.ifsc.city}`);
+            } else {
+                alert('IFSC code not found in our database.');
+            }
+        })
+        .catch(() => alert('Could not look up IFSC.'));
+}
+
+document.getElementById('connectForm').addEventListener('submit', function(e) {
+    document.getElementById('accountForm').style.display = 'none';
+    document.getElementById('connectStatus').style.display = 'block';
+    
+    // Simulate progress
+    const steps = ['step1','step2','step3','step4','step5'];
+    const messages = [
+        'Initiating Account Aggregator consent...',
+        'Fetching account details from bank...',
+        'Importing transactions from bank statement...',
+        'Generating UPI ID...',
+        'Complete! Refreshing...'
+    ];
+    steps.forEach((id, i) => {
+        setTimeout(() => {
+            document.getElementById('statusMessage').textContent = messages[i];
+            document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }, (i + 1) * 1000);
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% block title %}Pay Bills{% endblock %}
+{% block content %}
+<div class="banking-page">
+    <div class="page-header">
+        <a href="{{ url_for('banking_home') }}" class="back-link">← Back to Banking</a>
+        <h1>Pay Bills & Recharge</h1>
+    </div>
+
+    <!-- Biller Categories -->
+    <div class="biller-categories">
+        {% for key, name in biller_categories.items() %}
+        <a href="?category={{ key }}" class="biller-cat {{ 'active' if selected_category == key }}">
+            <span class="cat-icon">
+                {% if key == 'electricity' %}⚡{% elif key == 'mobile' %}📱{% elif key == 'dth' %}📡{% elif key == 'broadband' %}🌐{% elif key == 'gas' %}🔥{% elif key == 'insurance' %}🛡️{% elif key == 'fastag' %}🚗{% elif key == 'creditcard' %}💳{% elif key == 'water' %}💧{% elif key == 'education' %}📚{% else %}📄{% endif %}
+            </span>
+            <span class="cat-name">{{ name }}</span>
+        </a>
+        {% endfor %}
+    </div>
+
+    <!-- Billers Grid -->
+    <div class="billers-section">
+        <h2>{{ biller_categories.get(selected_category, 'All Billers') }}</h2>
+        <div class="billers-grid">
+            {% if billers %}
+                {% for biller in billers %}
+                <div class="biller-card" onclick="showBillForm('{{ biller.biller_code }}', '{{ biller.name }}', '{{ biller.logo }}')">
+                    <span class="biller-logo">{{ biller.logo }}</span>
+                    <span class="biller-name">{{ biller.name }}</span>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p class="empty-text">Select a category above to see billers.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Bill Payment Form -->
+    <div class="bill-form-section" id="billForm" style="display:none">
+        <h2>Pay Bill</h2>
+        <form method="post" action="{{ url_for('banking_bills') }}" id="payBillForm">
+            <input type="hidden" name="biller_code" id="billerCode">
+            <input type="hidden" name="biller_name" id="billerName">
+            
+            <div class="bill-preview" id="billPreview">
+                <span class="biller-logo-lg" id="billerLogo">⚡</span>
+                <strong id="billerDisplayName">Biller Name</strong>
+            </div>
+
+            <div class="form-group">
+                <label>Consumer Number / ID</label>
+                <input type="text" name="consumer_number" class="form-input" placeholder="Enter your consumer number" required>
+            </div>
+
+            <div class="form-group">
+                <label>From Account</label>
+                <select name="from_account_id" class="form-input" required>
+                    {% for acc in accounts %}
+                    <option value="{{ acc.id }}">{{ acc.name }} — ₹{{ "%.2f"|format(acc.balance) }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Amount (₹)</label>
+                <input type="number" step="0.01" min="1" name="amount" class="form-input amount-input" placeholder="Enter amount" required>
+                <small><a href="#" onclick="fetchBill()">Fetch bill amount automatically</a></small>
+            </div>
+
+            <button type="submit" class="btn-primary btn-full">Pay Bill Now ✅</button>
+        </form>
+    </div>
+
+    <!-- Recent Bill Payments -->
+    <div class="recent-bills">
+        <h2>Recent Payments</h2>
+        {% if recent_bills %}
+            {% for bill in recent_bills %}
+            <div class="bill-history-item">
+                <span class="bill-icon">{{ bill.biller_name[:2] }}</span>
+                <div class="bill-details">
+                    <strong>{{ bill.biller_name }}</strong>
+                    <small>{{ bill.consumer_number }} • {{ bill.paid_at[:10] }}</small>
+                </div>
+                <span class="bill-amount">₹{{ "%.2f"|format(bill.amount) }}</span>
+                <span class="bill-status success">Paid</span>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p class="empty-text">No bill payments yet.</p>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.biller-categories { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 24px; }
+.biller-cat { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 12px 16px; background: white; border-radius: 12px; text-decoration: none; box-shadow: 0 1px 4px rgba(0,0,0,0.06); min-width: 80px; transition: all 0.2s; }
+.biller-cat.active { background: #6c5ce7; color: white; }
+.biller-cat:hover { transform: translateY(-2px); }
+.cat-icon { font-size: 24px; }
+.cat-name { font-size: 11px; color: #555; text-align: center; }
+.biller-cat.active .cat-name { color: white; }
+.billers-section { margin-bottom: 24px; }
+.billers-section h2 { font-size: 18px; margin-bottom: 12px; }
+.billers-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+.biller-card { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 20px 12px; background: white; border-radius: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); cursor: pointer; transition: all 0.2s; }
+.biller-card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+.biller-logo { font-size: 32px; }
+.biller-name { font-size: 13px; font-weight: 500; text-align: center; }
+.bill-form-section { background: white; border-radius: 14px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 24px; }
+.bill-preview { display: flex; align-items: center; gap: 12px; padding: 16px; background: #f8f8ff; border-radius: 10px; margin-bottom: 16px; }
+.biller-logo-lg { font-size: 36px; }
+.amount-input { font-size: 24px; font-weight: 700; text-align: center; padding: 16px; }
+.recent-bills { margin-top: 24px; }
+.recent-bills h2 { font-size: 18px; margin-bottom: 12px; }
+.bill-history-item { display: flex; align-items: center; gap: 12px; padding: 12px; background: white; border-radius: 10px; margin-bottom: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
+.bill-icon { background: #6c5ce7; color: white; width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+.bill-details { flex: 1; }
+.bill-details strong { display: block; font-size: 14px; }
+.bill-details small { color: #888; font-size: 12px; }
+.bill-amount { font-weight: 700; font-size: 15px; }
+.bill-status { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+.bill-status.success { background: #d4edda; color: #155724; }
+</style>
+
+<script>
+function showBillForm(code, name, logo) {
+    document.getElementById('billerCode').value = code;
+    document.getElementById('billerName').value = name;
+    document.getElementById('billerDisplayName').textContent = name;
+    document.getElementById('billerLogo').textContent = logo;
+    document.getElementById('billForm').style.display = 'block';
+    document.getElementById('billForm').scrollIntoView({ behavior: 'smooth' });
+}
+
+function fetchBill() {
+    const code = document.getElementById('billerCode').value;
+    const consumer = document.querySelector('[name="consumer_number"]').value;
+    if (!code || !consumer) { alert('Select a biller and enter consumer number first.'); return; }
+    
+    fetch('/api/v1/banking/bills/fetch', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({biller_code: code, consumer_number: consumer})
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.bill) {
+            document.querySelector('[name="amount"]').value = data.bill.amount;
+            alert(`Bill found: ₹${data.bill.amount}\nDue: ${data.bill.due_date}\nPeriod: ${data.bill.bill_period}`);
+        } else {
+            alert('Could not fetch bill. Enter amount manually.');
+        }
+    })
+    .catch(() => alert('Could not fetch bill.'));
+}
+</script>
+{% endblock %}

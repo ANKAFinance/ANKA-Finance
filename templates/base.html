@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Personal Finance Tracker{% endblock %}</title>
+    <meta name="theme-color" content="#21322d">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <aside class="sidebar">
+        <a class="brand" href="{{ url_for('dashboard') if current_user else url_for('welcome') }}">
+            <span class="brand-mark">$</span>
+            <span>
+                <strong>Finance</strong>
+                <small>Tracker</small>
+            </span>
+        </a>
+        <nav class="nav">
+            {% if current_user %}
+                <a href="{{ url_for('dashboard') }}">Dashboard</a>
+                <a href="{{ url_for('accounts') }}">Accounts</a>
+                <a href="{{ url_for('banking_home') }}">Banking</a>
+                <a href="{{ url_for('investments') }}">Investments</a>
+                <a href="{{ url_for('transactions') }}">Transactions</a>
+                <a href="{{ url_for('budgets') }}">Budgets</a>
+                <a href="{{ url_for('goals') }}">Goals</a>
+                <a href="{{ url_for('reports') }}">Reports</a>
+                <a href="{{ url_for('settings') }}">Settings</a>
+            {% else %}
+                <a href="{{ url_for('welcome') }}">Home</a>
+                <a href="{{ url_for('pricing') }}">Pricing</a>
+                <a href="{{ url_for('login') }}">Sign in</a>
+                <a href="{{ url_for('register') }}">Start free</a>
+            {% endif %}
+        </nav>
+        {% if current_user %}
+            <div class="user-card">
+                <strong>{{ current_user.name }}</strong>
+                <span>{{ effective_plan|capitalize }} plan</span>
+                <form method="post" action="{{ url_for('logout') }}">
+                    <button type="submit" class="logout-button">Sign out</button>
+                </form>
+            </div>
+        {% endif %}
+    </aside>
+
+    <main class="shell">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-stack">
+                    {% for category, message in messages %}
+                        <div class="flash {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

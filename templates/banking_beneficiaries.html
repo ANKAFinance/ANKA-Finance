@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}Beneficiaries{% endblock %}
+{% block content %}
+<div class="banking-page">
+    <div class="page-header">
+        <a href="{{ url_for('banking_home') }}" class="back-link">← Back to Banking</a>
+        <h1>Manage Beneficiaries</h1>
+    </div>
+
+    <div class="beneficiaries-layout">
+        <!-- Add Beneficiary Form -->
+        <div class="add-beneficiary-card">
+            <h2>Add Beneficiary</h2>
+            <form method="post" action="{{ url_for('banking_beneficiaries') }}">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" name="name" class="form-input" placeholder="Beneficiary name" required>
+                </div>
+                <div class="form-group">
+                    <label>Bank Account Number</label>
+                    <input type="text" name="account_number" class="form-input" placeholder="Account number">
+                </div>
+                <div class="form-group">
+                    <label>IFSC Code</label>
+                    <input type="text" name="ifsc" class="form-input" placeholder="e.g., ICIC0001234">
+                </div>
+                <div class="form-group">
+                    <label>UPI ID (optional)</label>
+                    <input type="text" name="upi_id" class="form-input" placeholder="example@upi">
+                </div>
+                <div class="form-group">
+                    <label>Bank Name</label>
+                    <input type="text" name="bank_name" class="form-input" placeholder="e.g., ICICI Bank">
+                </div>
+                <button type="submit" class="btn-primary btn-full">Add Beneficiary</button>
+            </form>
+        </div>
+
+        <!-- Beneficiaries List -->
+        <div class="beneficiaries-list">
+            <h2>Saved Beneficiaries ({{ beneficiaries|length }})</h2>
+            {% if beneficiaries %}
+                {% for ben in beneficiaries %}
+                <div class="beneficiary-item">
+                    <div class="ben-avatar-lg">{{ ben.name[:2] }}</div>
+                    <div class="ben-details">
+                        <strong>{{ ben.name }}</strong>
+                        {% if ben.account_number %}
+                        <small>Account: ••••{{ ben.account_number[-4:] }} | IFSC: {{ ben.ifsc }}</small>
+                        {% endif %}
+                        {% if ben.upi_id %}
+                        <small>UPI: {{ ben.upi_id }}</small>
+                        {% endif %}
+                        <small class="ben-bank">{{ ben.bank_name or '' }}</small>
+                    </div>
+                    <span class="ben-verified">{{ '✅ Verified' if ben.verified else '⚠️ Unverified' }}</span>
+                    <span class="ben-fav">{{ '⭐' if ben.favorite else '☆' }}</span>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <p>No beneficiaries saved yet</p>
+                    <p style="font-size:13px;color:#888">Add beneficiaries to easily send money without entering details each time</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+.beneficiaries-layout { display: grid; grid-template-columns: 1fr 2fr; gap: 24px; }
+.add-beneficiary-card { background: white; border-radius: 14px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); height: fit-content; }
+.add-beneficiary-card h2 { font-size: 18px; margin: 0 0 16px; }
+.beneficiaries-list h2 { font-size: 18px; margin: 0 0 16px; }
+.beneficiary-item { display: flex; align-items: center; gap: 12px; padding: 14px; background: white; border-radius: 12px; margin-bottom: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.04); transition: background 0.2s; }
+.beneficiary-item:hover { background: #f8f8ff; }
+.ben-avatar-lg { background: #6c5ce7; color: white; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px; flex-shrink: 0; }
+.ben-details { flex: 1; }
+.ben-details strong { display: block; font-size: 15px; }
+.ben-details small { display: block; color: #888; font-size: 12px; }
+.ben-bank { color: #6c5ce7 !important; font-weight: 500; }
+.ben-verified { font-size: 12px; white-space: nowrap; }
+.ben-fav { font-size: 18px; cursor: pointer; }
+
+@media (max-width: 768px) { .beneficiaries-layout { grid-template-columns: 1fr; } }
+</style>
+{% endblock %}

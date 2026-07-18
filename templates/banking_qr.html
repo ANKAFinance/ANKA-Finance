@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block title %}My UPI QR{% endblock %}
+{% block content %}
+<div class="banking-page">
+    <div class="page-header">
+        <a href="{{ url_for('banking_home') }}" class="back-link">← Back to Banking</a>
+        <h1>My UPI QR Code</h1>
+    </div>
+
+    <div class="qr-layout">
+        <div class="qr-card">
+            <div class="qr-header">
+                <span class="qr-brand">ANKA Finance</span>
+            </div>
+            <div class="qr-code-display">
+                <div class="qr-placeholder">
+                    <div class="qr-grid">
+                        {% for i in range(25) %}
+                        <div class="qr-cell {{ 'dark' if loop.index % 3 == 0 or loop.index % 7 == 0 }}"></div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div class="qr-upi-id">
+                {% if upi_ids %}
+                <strong>{{ upi_ids[0].upi_id }}</strong>
+                {% else %}
+                <strong>Link a bank to get UPI ID</strong>
+                {% endif %}
+            </div>
+            <p class="qr-hint">Scan this QR to pay me</p>
+            <div class="qr-actions">
+                <button class="btn-secondary" onclick="copyUPI()">📋 Copy UPI ID</button>
+                <a href="{{ url_for('banking_connect') }}" class="btn-secondary">➕ Add UPI ID</a>
+            </div>
+        </div>
+
+        <div class="qr-info">
+            <h2>Your UPI IDs</h2>
+            {% if upi_ids %}
+                {% for upi in upi_ids %}
+                <div class="upi-id-card">
+                    <div class="upi-id-icon">📱</div>
+                    <div class="upi-id-details">
+                        <strong>{{ upi.upi_id }}</strong>
+                        <small>{{ upi.bank_name }} {% if upi.is_primary %}• Primary{% endif %}</small>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <p>No UPI IDs yet</p>
+                    <a href="{{ url_for('banking_connect') }}" class="btn-primary">Link a Bank to Get UPI ID</a>
+                </div>
+            {% endif %}
+
+            <div class="qr-tips">
+                <h3>💡 How to receive payments</h3>
+                <ul>
+                    <li>Share your UPI ID: <strong>{{ upi_ids[0].upi_id if upi_ids else '—' }}</strong></li>
+                    <li>Ask sender to scan the QR code above</li>
+                    <li>Or enter your UPI ID in any UPI app (GPay, PhonePe, Paytm)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.qr-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.qr-card { background: white; border-radius: 20px; padding: 32px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+.qr-header { margin-bottom: 20px; }
+.qr-brand { font-weight: 700; font-size: 18px; color: #6c5ce7; }
+.qr-code-display { width: 220px; height: 220px; margin: 0 auto 20px; background: white; border-radius: 16px; padding: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+.qr-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+.qr-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; width: 100%; height: 100%; }
+.qr-cell { background: #f0f0f0; border-radius: 2px; }
+.qr-cell.dark { background: #333; }
+.qr-upi-id { margin-bottom: 8px; }
+.qr-upi-id strong { font-size: 18px; color: #333; }
+.qr-hint { color: #888; font-size: 14px; margin-bottom: 20px; }
+.qr-actions { display: flex; gap: 10px; justify-content: center; }
+.btn-secondary { padding: 10px 20px; border-radius: 10px; border: 2px solid #eee; background: white; cursor: pointer; font-size: 14px; text-decoration: none; color: #333; }
+.btn-secondary:hover { border-color: #6c5ce7; }
+.qr-info h2 { font-size: 18px; margin: 0 0 16px; }
+.upi-id-card { display: flex; align-items: center; gap: 12px; padding: 14px; background: white; border-radius: 12px; margin-bottom: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
+.upi-id-icon { font-size: 24px; }
+.upi-id-details strong { display: block; font-size: 15px; }
+.upi-id-details small { color: #888; font-size: 12px; }
+.qr-tips { background: #f8f8ff; border-radius: 14px; padding: 20px; margin-top: 20px; }
+.qr-tips h3 { font-size: 16px; margin: 0 0 12px; }
+.qr-tips ul { margin: 0; padding-left: 20px; }
+.qr-tips li { margin-bottom: 8px; font-size: 14px; color: #555; }
+
+@media (max-width: 768px) { .qr-layout { grid-template-columns: 1fr; } }
+</style>
+
+<script>
+function copyUPI() {
+    const upi = "{{ upi_ids[0].upi_id if upi_ids else '' }}";
+    if (upi) {
+        navigator.clipboard.writeText(upi).then(() => {
+            alert('UPI ID copied to clipboard!');
+        });
+    }
+}
+</script>
+{% endblock %}
