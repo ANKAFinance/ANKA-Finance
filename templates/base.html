@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %}Personal Finance Tracker{% endblock %}</title>
+    <title>{% block title %}ANKA Finance{% endblock %}</title>
     <meta name="theme-color" content="#21322d">
     <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
@@ -11,10 +11,10 @@
 <body>
     <aside class="sidebar">
         <a class="brand" href="{{ url_for('dashboard') if current_user else url_for('welcome') }}">
-            <span class="brand-mark">$</span>
+            <span class="brand-mark">A</span>
             <span>
-                <strong>Finance</strong>
-                <small>Tracker</small>
+                <strong>ANKA</strong>
+                <small>Finance</small>
             </span>
         </a>
         <nav class="nav">

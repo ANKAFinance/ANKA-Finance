@@ -38,9 +38,26 @@ a {
     inset: 0 auto 0 0;
     width: 250px;
     padding: 28px 22px;
+    padding-bottom: 12px;
     background: #111827;
     color: #f7fbf8;
     box-shadow: 14px 0 36px rgba(17, 24, 39, 0.16);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.sidebar::-webkit-scrollbar {
+    width: 4px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
 }
 
 .brand {
@@ -74,6 +91,7 @@ a {
 .nav {
     display: grid;
     gap: 8px;
+    flex-shrink: 0;
 }
 
 .nav a {
@@ -92,9 +110,10 @@ a {
 .user-card {
     display: grid;
     gap: 6px;
-    margin-top: 28px;
-    border-top: 1px solid rgba(255, 255, 255, 0.16);
+    margin-top: auto;
     padding-top: 18px;
+    border-top: 1px solid rgba(255, 255, 255, 0.16);
+    flex-shrink: 0;
 }
 
 .user-card span {
