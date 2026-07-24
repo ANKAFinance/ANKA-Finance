@@ -1,9 +1,9 @@
 {
-  "name": "Personal Finance Tracker",
-  "short_name": "Finance Tracker",
+  "name": "ANKA Finance",
+  "short_name": "ANKA",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#f5f7f3",
-  "theme_color": "#21322d",
-  "description": "Track income, expenses, budgets, accounts, net worth, and savings goals."
+  "background_color": "#111827",
+  "theme_color": "#111827",
+  "description": "Banking, payments & finance - Connect real bank accounts, UPI, bill payments, investments."
 }
